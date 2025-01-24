@@ -1,0 +1,139 @@
+\documentclass{article}
+\usepackage[preprint]{neurips_2023}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\DeclareMathOperator{\softmax}{softmax}
+\DeclareMathOperator{\sigmoid}{sigmoid}
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\relu}{ReLU}
+
+\title{Deep Convolutional Neural Networks for Semantic Segmentation}
+
+\author{
+  Merrick Qiu\\
+  UC San Diego\\
+  La Jolla, CA 92093 \\
+  \texttt{myqiu@ucsd.edu} \\
+  \And
+  Michael Ye \\
+  UC San Diego \\
+  La Jolla, CA 92093 \\
+  \texttt{mhye@ucsd.edu} \\
+  \AND
+  Collin Cranston \\
+  UC San Diego \\
+  La Jolla, CA 92093 \\
+  \texttt{YOUR-EMAIL@ucsd.edu} \\
+}
+
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\begin{abstract}
+  We used a deep convolutional neural network in order to perform semantic segmentation on
+  the PASCAL VOC 2012 dataset. 
+  We built a PyTorch CNN with ReLU activation function, batch normalization, and an encoder and decoder architecture.
+  With the baseline model we were able to get a mean pixel accuracy of [PIXEL ACCURACY] and mean IoU score of [IOU] but after using [SET OF OPTIMIZATIONS] 
+  we were able to get a model with a mean pixel accuracy of [PIXEL ACCURACY] and a mean IoU score of [IOU].
+  It was interesting that [FINDINGS].
+\end{abstract}
+
+
+\section{Introduction}
+\subsection{Overview}
+Semantic segmentation is the process by which the pixels in an image are classified into a number of categories.
+In the PASCAL VOC 2012 dataset, each pixel is classified into one of 21 classes using a softmax.
+This is useful in a number of fields including self-driving cars, medical imaging, and satellite imaging.
+However, this is a challenging task because it requires the model to understand the context of the image and to be able to
+distinguish between different objects. 
+
+To perform semantic segmentation, we used a deep convolutional neural network with an encoder and decoder architecture.
+Convolutions can calculate the features of an image by repeatedly applying a filter to an image.
+We use ReLU as our acitvation function to add nonlinearity to the network. 
+Batch normalization normalizes the input to each layer so that it has zero mean and scaling it to the standard deviation.
+This speeds up training and makes the model more robust.
+To perform a feedforward pass,
+the encoder is used to extract features from the image and the decoder is used to upsample the features to the original image size.
+
+
+\subsection{Xavier and Kaiming Weight Initialization}
+The output from a matrix multiplication has a variance equal to the 
+the size of the input vector if the weights and inputs 
+are all initated with standard normal distributions.
+In addition, the activation function can change the variance of the output.
+In order to prevent activations from exploding or vanishing during the forward pass of the initial model,
+the weights are set using Kaiming weight initialization since we are using ReLU.
+Xavier weight initialization is used when the activation function is a sigmoid or hyperbolic tangent.
+
+We want the variance of the layer outputs to be $1$ so the matrix weights
+are initialized with a standard deviation of $\sqrt{1/n}$.
+However the ReLU activation function halves the variance of the output
+so instead we want to initialize the weights with standard deviation of $\sqrt{2/n}$.
+Although in the original paper by Kaiming He et al.
+they used the normal distribution $\mathcal{N}(0, \sqrt{2/n})$,
+\href{https://pytorch.org/docs/stable/nn.init.html\#torch.nn.init.kaiming\_uniform\_}{PyTorch}
+uses the uniform distribution $\mathcal{U}(-\sqrt{6/n}, \sqrt{6/n})$.
+
+\subsection{CNN architecture}
+
+The architecture of the basline model is dhown in table 1.
+Note that the output is passed through ReLU after each convolution or transpose convolution.
+\begin{table}[h!]
+\caption{Baseline model architecture}
+\label{tab:baseline_model_architecture}
+\centering
+\begin{tabular}{ccc}
+  \toprule
+  \textbf{Type} & \textbf{Output Channels} & \textbf{Kernel Size / Stride / Padding} \\ 
+  \midrule
+  Conv2d & 32 & 3x3 / 2 / 1 \\ 
+  BatchNorm2d & 32 & - \\ 
+  Conv2d & 64 & 3x3 / 2 / 1 \\ 
+  BatchNorm2d & 64 & - \\ 
+  Conv2d & 128 & 3x3 / 2 / 1 \\ 
+  BatchNorm2d & 128 & - \\ 
+  Conv2d & 256 & 3x3 / 2 / 1 \\ 
+  BatchNorm2d & 256 & - \\ 
+  Conv2d & 512 & 3x3 / 2 / 1 \\ 
+  BatchNorm2d & 512 & - \\ 
+  ConvTranspose2d & 512 & 3x3 / 2 / 1 / 1 \\ 
+  BatchNorm2d & 512 & - \\ 
+  ConvTranspose2d & 256 & 3x3 / 2 / 1 / 1 \\ 
+  BatchNorm2d & 256 & - \\ 
+  ConvTranspose2d & 128 & 3x3 / 2 / 1 / 1 \\ 
+  BatchNorm2d & 128 & - \\ 
+  ConvTranspose2d & 64 & 3x3 / 2 / 1 / 1 \\ 
+  BatchNorm2d & 64 & - \\ 
+  ConvTranspose2d & 32 & 3x3 / 2 / 1 / 1 \\ 
+  BatchNorm2d & 32 & - \\ 
+  Conv2d & n\_class & 1x1 / - / - \\ 
+  \bottomrule
+\end{tabular}
+\end{table}
+\section{Related Work}
+
+\section*{References}
+% He paper
+% https://arxiv.org/pdf/1502.01852
+
+
+\end{document}
